@@ -1,16 +1,1 @@
-{
-  "name": "My Frequencies",
-  "short_name": "My Frequencies",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#09001c",
-  "theme_color": "#09001c",
-  "description": "My frequency tone player",
-  "icons": [
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
-    }
-  ]
-}
+{"name":"My Frequencies","short_name":"Frequencies","start_url":"./","display":"standalone","background_color":"#09001c","theme_color":"#09001c","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
