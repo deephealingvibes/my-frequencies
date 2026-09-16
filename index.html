@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#09001c">
+<meta name="description" content="My Frequencies — simple frequency tone player">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<title>My Frequencies</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#09001c;--violet:#a83cff;--violet2:#6c17d8;--gold:#ffd15c;--text:#fffaff;--muted:#d8b9ed}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+body{min-height:100vh;display:flex;justify-content:center;background:
+radial-gradient(circle at 50% 22%,rgba(105,24,170,.28),transparent 32%),
+radial-gradient(circle at 50% 65%,rgba(92,18,185,.18),transparent 42%),
+linear-gradient(145deg,#05000f,#12002b 52%,#06000f)}
+.app{width:min(100%,620px);min-height:100vh;padding:34px 28px 28px;position:relative}
+.top{display:flex;justify-content:space-between;align-items:center}
+.icon{font-size:29px;color:#bd61ff;opacity:.95}
+h1{margin:10px 0 4px;text-align:center;font-weight:300;letter-spacing:.22em;font-size:38px;color:#ffdca0}
+.sub{text-align:center;letter-spacing:.34em;color:#d6a4f7;font-size:12px;margin-bottom:28px}
+.line{height:2px;background:linear-gradient(90deg,transparent,#6f1aff,#ffd15c,#6f1aff,transparent);box-shadow:0 0 14px #9a36ff;margin:0 0 24px}
+.phrase{text-align:center;letter-spacing:.36em;color:#dba9fa;font-size:12px;margin-bottom:28px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.freq{min-height:105px;border-radius:28px;border:2px solid #8b28ff;color:#fff;background:linear-gradient(145deg,rgba(74,11,139,.72),rgba(31,4,65,.82));box-shadow:inset 0 0 22px rgba(174,58,255,.22),0 0 16px rgba(133,25,255,.18);font-size:27px;font-weight:350;cursor:pointer}
+.freq span{display:block;font-size:17px;margin-top:3px;letter-spacing:.15em}
+.freq.active{border-color:var(--gold);color:var(--gold);box-shadow:0 0 30px rgba(255,194,73,.45),inset 0 0 25px rgba(255,177,58,.16)}
+.controls{margin:38px 0 22px;display:flex;align-items:center;justify-content:center;gap:55px}
+.stop{width:76px;height:76px;border-radius:50%;border:2px solid #7f25ef;background:transparent;color:#f3d8ff;font-size:23px;box-shadow:0 0 15px rgba(133,25,255,.2);cursor:pointer}
+.stop-label{position:absolute;margin-top:105px;margin-left:-76px;width:76px;text-align:center;font-size:11px;letter-spacing:.35em;color:#c88cf2}
+.play{width:150px;height:150px;border-radius:50%;border:3px solid var(--gold);background:rgba(54,10,73,.4);color:var(--gold);font-size:44px;box-shadow:0 0 35px rgba(255,194,73,.28);cursor:pointer}
+.now{min-width:125px;color:#fff;font-size:26px;letter-spacing:.08em}.now small{display:block;color:var(--gold);font-size:12px;letter-spacing:.35em;margin-top:8px}
+.volume{margin-top:62px;display:flex;align-items:center;gap:14px}.speaker{font-size:27px;color:#c55aff}.slider{flex:1;accent-color:#b94cff}.pct{color:#c987f5;font-size:21px;min-width:54px;text-align:right}
+.bottom-line{height:2px;background:linear-gradient(90deg,transparent,#7c20ff,#ffd15c,#7c20ff,transparent);margin:34px 0 25px;opacity:.8}.footer{text-align:center;color:#cda1e8;font-size:11px;letter-spacing:.3em}
+.install{display:none;margin:20px auto 0;padding:12px 20px;border-radius:22px;border:1px solid #c36cff;background:#411079;color:white}.install.show{display:block}
+@media(max-width:520px){.app{padding:25px 17px}.grid{gap:10px}.freq{min-height:88px;font-size:23px;border-radius:22px}.freq span{font-size:14px}.play{width:125px;height:125px}.controls{gap:35px}.now{font-size:22px}h1{font-size:30px}}
+@media(max-width:370px){.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<main class="app">
+ <div class="top"><div class="icon">☰</div><div class="icon">⚙</div></div>
+ <h1>MY FREQUENCIES</h1>
+ <div class="sub">SOUND • BALANCE • HIGHER SELF</div>
+ <div class="line"></div>
+ <div class="phrase">TUNE • HEAL • BE • MORE</div>
+ <section class="grid" id="grid"></section>
+ <section class="controls">
+   <div><button class="stop" id="stop">■</button><div class="stop-label">STOP</div></div>
+   <button class="play" id="play">▶</button>
+   <div class="now"><span id="nowFreq">—</span><small id="nowState">READY</small></div>
+ </section>
+ <div class="volume"><span class="speaker">◖))</span><input class="slider" id="volume" type="range" min="0" max="100" value="80"><span class="pct" id="pct">80%</span></div>
+ <button class="install" id="install">＋ INSTALL APP</button>
+ <div class="bottom-line"></div>
+ <div class="footer">GOOD VIBRATIONS • A BRIGHTER YOU</div>
+</main>
+<script>
+const frequencies=[174,285,396,417,432,528,639,741,852,888,963];
+const grid=document.getElementById('grid'),stopBtn=document.getElementById('stop'),playBtn=document.getElementById('play');
+const nowFreq=document.getElementById('nowFreq'),nowState=document.getElementById('nowState'),volume=document.getElementById('volume'),pct=document.getElementById('pct');
+let ctx=null,osc=null,gain=null,current=null,playing=false;
+frequencies.forEach(f=>{const b=document.createElement('button');b.className='freq';b.innerHTML=`${f}<span>Hz</span>`;b.onclick=()=>select(f,b);grid.appendChild(b)});
+function ensure(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume()}
+function start(){if(current===null)return;ensure();if(osc)return;osc=ctx.createOscillator();gain=ctx.createGain();osc.type='sine';osc.frequency.value=current;gain.gain.value=volume.value/100*.15;osc.connect(gain).connect(ctx.destination);osc.start();playing=true;playBtn.textContent='Ⅱ';nowState.textContent='PLAYING'}
+function stop(){if(osc){try{osc.stop()}catch(e){}osc.disconnect();osc=null}playing=false;playBtn.textContent='▶';nowState.textContent=current===null?'READY':'PAUSED'}
+function select(f,b){stop();current=f;document.querySelectorAll('.freq').forEach(x=>x.classList.remove('active'));b.classList.add('active');nowFreq.textContent=f+' Hz';start()}
+playBtn.onclick=()=>{if(current===null)return; if(playing)stop(); else start()}
+stopBtn.onclick=()=>{stop();current=null;nowFreq.textContent='—';nowState.textContent='READY';document.querySelectorAll('.freq').forEach(x=>x.classList.remove('active'))}
+volume.oninput=()=>{pct.textContent=volume.value+'%';if(gain&&ctx)gain.gain.setTargetAtTime(volume.value/100*.15,ctx.currentTime,.01)}
+let deferred;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;document.getElementById('install').classList.add('show')});
+document.getElementById('install').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
